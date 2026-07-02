@@ -1,0 +1,7 @@
+com\researchhub\controller\PaperController.class
+com\researchhub\config\CorsConfig.class
+com\researchhub\ResearchHubApplication.class
+com\researchhub\config\CorsConfig$1.class
+com\researchhub\model\Paper.class
+com\researchhub\service\PaperService.class
+com\researchhub\repository\PaperRepository.class

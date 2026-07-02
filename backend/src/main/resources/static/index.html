@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ResearchHub — Academic Paper Repository</title>
+  <meta name="description" content="Search, discover, upload and manage academic research papers across all domains." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ===================== NAVIGATION BAR ===================== -->
+  <nav>
+    <div class="logo">📚 ResearchHub</div>
+    <ul>
+      <li><a href="#" onclick="loadPapers(); return false;">Home</a></li>
+      <li><a href="#" onclick="scrollToSection('papers-section'); return false;">Browse</a></li>
+      <li><a href="#" onclick="openUploadModal(); return false;" id="nav-upload">⬆ Upload</a></li>
+      <li><a href="#" class="nav-login">Login</a></li>
+    </ul>
+  </nav>
+
+  <!-- ===================== HERO / SEARCH ===================== -->
+  <section class="hero">
+    <h1>Research Paper Repository</h1>
+    <p>Search, discover, and manage academic papers across all domains.</p>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search by title, author, or keyword..."
+        onkeydown="if(event.key==='Enter') searchPapers()" />
+      <button onclick="searchPapers()">Search</button>
+      <button class="btn-reset" onclick="loadPapers()">Reset</button>
+    </div>
+  </section>
+
+  <!-- ===================== LIVE STATS ===================== -->
+  <div class="stats" id="statsBar">
+    <div><span id="stat-papers">—</span>
+      <p>Total Papers</p>
+    </div>
+    <div><span id="stat-domains">—</span>
+      <p>Domains</p>
+    </div>
+    <div><span id="stat-authors">—</span>
+      <p>Authors</p>
+    </div>
+    <div><span id="stat-downloads">—</span>
+      <p>Downloads</p>
+    </div>
+  </div>
+
+  <!-- ===================== MAIN CONTENT ===================== -->
+  <div class="container">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <h3>Domains</h3>
+      <ul id="domainList">
+        <li onclick="filterByDomain('Artificial Intelligence')">Artificial Intelligence</li>
+        <li onclick="filterByDomain('Machine Learning')">Machine Learning</li>
+        <li onclick="filterByDomain('Data Science')">Data Science</li>
+        <li onclick="filterByDomain('Cybersecurity')">Cybersecurity</li>
+        <li onclick="filterByDomain('Cloud Computing')">Cloud Computing</li>
+        <li onclick="filterByDomain('Bioinformatics')">Bioinformatics</li>
+      </ul>
+
+      <h3>Filter by Year</h3>
+      <ul>
+        <li onclick="filterByYear(2024)">2024</li>
+        <li onclick="filterByYear(2023)">2023</li>
+        <li onclick="filterByYear(2022)">2022</li>
+        <li onclick="filterByYear(2021)">2021</li>
+      </ul>
+
+      <h3>Citation Format</h3>
+      <ul>
+        <li>APA</li>
+        <li>MLA</li>
+        <li>IEEE</li>
+      </ul>
+
+      <!-- Upload shortcut in sidebar -->
+      <button class="btn-upload-sidebar" onclick="openUploadModal()">⬆ Upload Paper</button>
+    </aside>
+
+    <!-- PAPERS AREA -->
+    <main class="papers" id="papers-section">
+      <div class="papers-header">
+        <h2 id="sectionTitle">Recent Papers</h2>
+        <span id="paperCount" class="paper-count"></span>
+      </div>
+
+      <!-- Loading spinner -->
+      <div id="loadingSpinner" class="spinner" style="display:none;">
+        <div class="spinner-ring"></div>
+        <p>Loading papers...</p>
+      </div>
+
+      <!-- Dynamic paper cards injected here -->
+      <div id="papersContainer"></div>
+
+      <!-- Empty state -->
+      <div id="emptyState" class="empty-state" style="display:none;">
+        <div class="empty-icon">🔍</div>
+        <h3>No papers found</h3>
+        <p>Try a different search or filter, or upload the first paper!</p>
+        <button onclick="loadPapers()">View All Papers</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer>
+    &copy; 2026 ResearchHub — Academic Research Repository Platform
+  </footer>
+
+  <!-- ===================== UPLOAD MODAL ===================== -->
+  <div id="uploadModal" class="modal-overlay" style="display:none;" onclick="closeOnOverlay(event)">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>📄 Upload Research Paper</h2>
+        <button class="modal-close" onclick="closeUploadModal()">✕</button>
+      </div>
+
+      <form id="uploadForm" onsubmit="submitUpload(event)" enctype="multipart/form-data">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="up-title">Paper Title <span class="req">*</span></label>
+            <input type="text" id="up-title" name="title" required
+              placeholder="e.g. Deep Learning for Disease Prediction" />
+          </div>
+        </div>
+
+        <div class="form-row two-col">
+          <div class="form-group">
+            <label for="up-author">Author(s) <span class="req">*</span></label>
+            <input type="text" id="up-author" name="author" required placeholder="e.g. Dr. Anil Kumar" />
+          </div>
+          <div class="form-group">
+            <label for="up-year">Publication Year <span class="req">*</span></label>
+            <input type="number" id="up-year" name="year" required min="1900" max="2099" placeholder="2024" />
+          </div>
+        </div>
+
+        <div class="form-row two-col">
+          <div class="form-group">
+            <label for="up-domain">Domain <span class="req">*</span></label>
+            <select id="up-domain" name="domain" required>
+              <option value="">-- Select Domain --</option>
+              <option value="Artificial Intelligence">Artificial Intelligence</option>
+              <option value="Machine Learning">Machine Learning</option>
+              <option value="Data Science">Data Science</option>
+              <option value="Cybersecurity">Cybersecurity</option>
+              <option value="Cloud Computing">Cloud Computing</option>
+              <option value="Bioinformatics">Bioinformatics</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="up-tags">Tags (comma separated)</label>
+            <input type="text" id="up-tags" name="tags" placeholder="e.g. NLP, Healthcare, AI" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="up-abstract">Abstract <span class="req">*</span></label>
+            <textarea id="up-abstract" name="abstractText" required rows="4"
+              placeholder="Brief description of the paper..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="up-file">PDF File <span class="req">*</span></label>
+            <div class="file-drop-zone" id="fileDrop" onclick="document.getElementById('up-file').click()">
+              <div class="file-drop-icon">📁</div>
+              <p id="fileLabel">Click to browse or drag & drop PDF here</p>
+              <small>Max file size: 50 MB</small>
+              <input type="file" id="up-file" name="file" accept=".pdf" required onchange="updateFileLabel(this)"
+                style="display:none;" />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closeUploadModal()">Cancel</button>
+          <button type="submit" class="btn-submit" id="submitBtn">Upload Paper</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== TOAST NOTIFICATION ===================== -->
+  <div id="toast" class="toast" style="display:none;"></div>
+
+  <!-- ===================== EDIT MODAL ===================== -->
+  <div id="editModal" class="modal-overlay" style="display:none;" onclick="closeOnOverlayEdit(event)">
+    <div class="modal-box">
+      <div class="modal-header edit-header">
+        <h2>✏ Edit Research Paper</h2>
+        <button class="modal-close" onclick="closeEditModal()">✕</button>
+      </div>
+
+      <form id="editForm" onsubmit="submitEdit(event)" enctype="multipart/form-data">
+        <input type="hidden" id="edit-id" />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-title">Paper Title <span class="req">*</span></label>
+            <input type="text" id="edit-title" name="title" required />
+          </div>
+        </div>
+
+        <div class="form-row two-col">
+          <div class="form-group">
+            <label for="edit-author">Author(s) <span class="req">*</span></label>
+            <input type="text" id="edit-author" name="author" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-year">Publication Year <span class="req">*</span></label>
+            <input type="number" id="edit-year" name="year" required min="1900" max="2099" />
+          </div>
+        </div>
+
+        <div class="form-row two-col">
+          <div class="form-group">
+            <label for="edit-domain">Domain <span class="req">*</span></label>
+            <select id="edit-domain" name="domain" required>
+              <option value="">-- Select Domain --</option>
+              <option value="Artificial Intelligence">Artificial Intelligence</option>
+              <option value="Machine Learning">Machine Learning</option>
+              <option value="Data Science">Data Science</option>
+              <option value="Cybersecurity">Cybersecurity</option>
+              <option value="Cloud Computing">Cloud Computing</option>
+              <option value="Bioinformatics">Bioinformatics</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit-tags">Tags (comma separated)</label>
+            <input type="text" id="edit-tags" name="tags" placeholder="e.g. NLP, Healthcare, AI" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-abstract">Abstract <span class="req">*</span></label>
+            <textarea id="edit-abstract" name="abstractText" required rows="4"></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-file">Replace PDF <small>(optional — leave blank to keep existing)</small></label>
+            <div class="file-drop-zone" id="editFileDrop" onclick="document.getElementById('edit-file').click()">
+              <div class="file-drop-icon">📁</div>
+              <p id="editFileLabel">Click to browse a new PDF (optional)</p>
+              <small>Max file size: 50 MB</small>
+              <input type="file" id="edit-file" name="file" accept=".pdf" onchange="updateEditFileLabel(this)"
+                style="display:none;" />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+          <button type="submit" class="btn-submit" id="editSubmitBtn">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== APP SCRIPT ===================== -->
+  <script src="app.js"></script>
+
+</body>
+
+</html>
